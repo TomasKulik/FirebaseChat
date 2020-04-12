@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Firebase Chat',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: Colors.white,
+        primaryColor: Colors.blue,
       ),
       home: StreamBuilder<FirebaseUser>(
         stream: Provider.of<AuthService>(context, listen: false).user,
