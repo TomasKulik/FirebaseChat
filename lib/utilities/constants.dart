@@ -3,7 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 final Firestore _db = Firestore.instance;
 final usersRef = _db.collection('users');
-final chatRef = _db.collection('chats');
+final chatsRef = _db.collection('chats');
 
 final FirebaseStorage _storage = FirebaseStorage.instance;
 final storageRef = _storage.ref();
