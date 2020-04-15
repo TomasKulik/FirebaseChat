@@ -7,6 +7,8 @@ import 'package:firebase_chat/models/message_model.dart';
 import 'package:firebase_chat/models/user_data.dart';
 import 'package:firebase_chat/services/database_service.dart';
 import 'package:firebase_chat/services/storage_service.dart';
+import 'package:firebase_chat/utilities/constants.dart';
+import 'package:firebase_chat/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -111,6 +113,45 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  _buildMessagesStream() {
+    return StreamBuilder(
+      stream: chatsRef
+          .document(widget.chat.id)
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .limit(20)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (!snapshot.hasData) {
+          return SizedBox.shrink();
+        }
+        return Expanded(
+          child: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: ListView(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+              physics: AlwaysScrollableScrollPhysics(),
+              reverse: true,
+              children: _buildMessageBubbles(snapshot),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  List<MessageBubble> _buildMessageBubbles(
+      AsyncSnapshot<QuerySnapshot> messages) {
+    List<MessageBubble> messageBubbles = [];
+    messages.data.documents.forEach((doc) {
+      Message message = Message.fromDoc(doc);
+      MessageBubble messageBubble = MessageBubble(widget.chat, message);
+      messageBubbles.add(messageBubble);
+    });
+    return messageBubbles;
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -127,7 +168,7 @@ class _ChatScreenState extends State<ChatScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              //_buildMessagesStream(),
+              _buildMessagesStream(),
               Divider(height: 1.0),
               _buildMessageTF(),
             ],
