@@ -6,6 +6,7 @@ import 'package:firebase_chat/screens/chat_screen.dart';
 import 'package:firebase_chat/screens/search_users_screen.dart';
 import 'package:firebase_chat/services/auth_service.dart';
 import 'package:firebase_chat/utilities/constants.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +16,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
+  @override
+  void initState() {
+    super.initState();
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) {
+        print('On message: $message');
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('On resume: $message');
+      },
+      onLaunch: (Map<String, dynamic> message) {
+        print('On launch: $message');
+      },
+    );
+  }
+
   _buildChat(Chat chat, String currentUserId) {
     final bool isRead = chat.readStatus[currentUserId];
     final TextStyle readStyle = TextStyle(
@@ -38,12 +57,12 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : chat.recentMessage != null
               ? Text(
-                  '${chat.memberInfo[chat.recentMessage]['name']}: ${chat.recentMessage}',
+                  '${chat.memberInfo[chat.recentSender]['name']}: ${chat.recentMessage}',
                   overflow: TextOverflow.ellipsis,
                   style: readStyle,
                 )
               : Text(
-                  '${chat.memberInfo[chat.recentMessage]['name']} sent an image',
+                  '${chat.memberInfo[chat.recentSender]['name']} sent an image',
                   overflow: TextOverflow.ellipsis,
                   style: readStyle,
                 ),
