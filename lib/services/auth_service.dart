@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_chat/models/user_model.dart';
 import 'package:firebase_chat/utilities/constants.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
@@ -36,9 +37,31 @@ class AuthService {
     }
   }
 
-  Future<void> logout() {
+  Future<void> logout() async {
+    await removeToken();
     Future.wait([
       _auth.signOut(),
     ]);
+  }
+
+  Future<void> removeToken() async {
+    final currentUser = await _auth.currentUser();
+    await usersRef
+        .document(currentUser.uid)
+        .setData({'token': ''}, merge: true);
+  }
+
+  Future<void> updateToken() async {
+    final currentUser = await _auth.currentUser();
+    final token = await _messaging.getToken();
+    final userDoc = await usersRef.document(currentUser.uid).get();
+    if (userDoc.exists) {
+      User user = User.fromDoc(userDoc);
+      if (token != user.token) {
+        usersRef
+            .document(currentUser.uid)
+            .setData({'token': token}, merge: true);
+      }
+    }
   }
 }

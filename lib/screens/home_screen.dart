@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
         print('On launch: $message');
       },
     );
+    Provider.of<AuthService>(context, listen: false).updateToken();
   }
 
   _buildChat(Chat chat, String currentUserId) {
